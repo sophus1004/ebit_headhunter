@@ -1,18 +1,25 @@
 from typing import List
 from fastapi import FastAPI, UploadFile, Body, File
+from fastapi.middleware.cors import CORSMiddleware
 from core.config import AppConfig
 from core.init_db import create_mariadb_table, create_milvus_collections
 from api.GetInfo import get_server_info
 from api.RegistData import RegistData
 from api.VectorSearch import VectorSearch
-#from frontend.GradioApp import GradioApp
 
 # ✅ 설정 객체 생성
 app = FastAPI()
 config = AppConfig()
 regist_data = RegistData(config)
 vector_search = VectorSearch(config)
-#gradio_app = GradioApp(config)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 도메인 허용 (개발 중)
+    allow_credentials=True,
+    allow_methods=["*"],  # 모든 HTTP 메소드 허용 (GET, POST, PUT, DELETE 등)
+    allow_headers=["*"],  # 모든 HTTP 헤더 허용
+)
 
 # ✅ 서버 시작 시 DB 및 Milvus 초기화
 @app.on_event("startup")

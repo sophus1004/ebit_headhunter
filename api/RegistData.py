@@ -79,7 +79,7 @@ class RegistData:
 
                 # DB 삽입용 데이터 준비
                 db_data = {"id": snowflake_id}
-                db_data["file_name"] = file.filename  # 업로드된 파일명 추가
+                db_data["file_name"] = key  # 업로드된 파일명 추가
 
                 for col in self.config.data.column:
                     col_name = col["name"]
