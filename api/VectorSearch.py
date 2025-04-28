@@ -56,38 +56,42 @@ class VectorSearch:
             print(f"[MariaDB Error] {e}")
             return None
 
-    def search(self, collection_name: str, query_text: str, top_k: int = 1) -> list[dict]:
+    def search(self, collection_names: list[str], query_text: str, top_k: int = 1) -> list[dict]:
         embedding = self.get_embedding(query_text)
         if not embedding:
             return [{"error": "embedding 생성 실패"}]
 
-        try:
-            collection = Collection(collection_name)
-            collection.load()
+        all_results = []
 
-            search_params = {
-                "metric_type": "COSINE",
-                "params": {"nprobe": 10}
-            }
+        for collection_name in collection_names:
+            try:
+                collection = Collection(collection_name)
+                collection.load()
 
-            results = collection.search(
-                data=[embedding],
-                anns_field="embedding",
-                param=search_params,
-                limit=top_k,
-                output_fields=["id", "text"]
-            )
+                search_params = {
+                    "metric_type": "COSINE",
+                    "params": {"nprobe": 10}
+                }
 
-            output = []
-            for hit in results[0]:
-                milvus_id = hit.entity.get("id")
-                record = self.fetch_from_mariadb(milvus_id)
-                output.append({
-                    "id": milvus_id,
-                    "score": round(hit.distance, 4),
-                    "text": hit.entity.get("text"),
-                    "record": record
-                })
-            return output
-        except Exception as e:
-            return [{"error": str(e)}]
+                results = collection.search(
+                    data=[embedding],
+                    anns_field="embedding",
+                    param=search_params,
+                    limit=top_k,
+                    output_fields=["id", "text"]
+                )
+
+                for hit in results[0]:
+                    milvus_id = hit.entity.get("id")
+                    record = self.fetch_from_mariadb(milvus_id)
+                    all_results.append({
+                        "collection": collection_name,
+                        "id": milvus_id,
+                        "score": round(hit.distance, 4),
+                        "text": hit.entity.get("text"),
+                        "record": record
+                    })
+            except Exception as e:
+                all_results.append({"collection": collection_name, "error": str(e)})
+
+        return all_results

@@ -17,25 +17,25 @@ class MilvusConfig:
 class DataConfig:
     def __init__(self):
         self.column = [
-            { "name": "name", "type": "String", "length": 32 },
-            { "name": "sex", "type": "String", "length": 32 },
-            { "name": "age", "type": "Integer" },
-            { "name": "nationality", "type": "String", "length": 32 },
-            { "name": "city", "type": "String", "length": 32 },
-            { "name": "education_degree", "type": "String", "length": 8 },
-            { "name": "doctorate", "type": "String", "length": 32 },
-            { "name": "doctorate_university", "type": "String", "length": 32 },
-            { "name": "master", "type": "String", "length": 32 },
-            { "name": "master_university", "type": "String", "length": 32 },
-            { "name": "bachelor", "type": "String", "length": 32 },
-            { "name": "bachelor_university", "type": "String", "length": 32 },
-            { "name": "self_introduction", "type": "Text" },
-            { "name": "work_experience", "type": "Text" }
+            { "name": "file_name", "type": "String", "length": 512 },
+            { "name": "name", "type": "String", "length": 512 },
+            { "name": "age", "type": "String", "length": 128 },
+            { "name": "nationality", "type": "String", "length": 256 },
+            { "name": "school_name", "type": "String", "length": 512 },
+            { "name": "education_level", "type": "String", "length": 256 },
+            { "name": "field_of_study", "type": "String", "length": 256 },
+            { "name": "career_highlights", "type": "Text" },
+            { "name": "preferred_position", "type": "String", "length": 512 },
+            { "name": "experience", "type": "String", "length": 256 },
+            { "name": "technical_skills", "type": "Text" },
+            { "name": "language_proficiency", "type": "String", "length": 256 },
+            { "name": "detailed_summary", "type": "Text" },
         ]
+        
         self.collection = [
-            "self_introduction",
-            "work_experience"
+            "detailed_summary"
         ]
+
 
 class AppConfig:
     def __init__(self):
