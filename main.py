@@ -1,17 +1,22 @@
+import logging
 from typing import List
 from fastapi import FastAPI, UploadFile, Body, File
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import AppConfig
-from core.init_db import create_mariadb_table, create_milvus_collections
-from api.GetInfo import get_server_info
-from api.RegistData import RegistData
-from api.VectorSearch import VectorSearch
+from core.messages import ServerMessages
+from core.initialize_db import InitializeDB
+from api.get_info import GetInfo
+from api.regist_data import RegistData
+from api.vector_search import VectorSearch
 
-# ✅ 설정 객체 생성
+logger = logging.getLogger("uvicorn.error")
+
 app = FastAPI()
 config = AppConfig()
-regist_data = RegistData(config)
-vector_search = VectorSearch(config)
+initialize_db = InitializeDB(config)
+get_info = GetInfo(config)
+regist_data = RegistData(config, initialize_db)
+vector_search = VectorSearch(config, initialize_db)
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,26 +26,20 @@ app.add_middleware(
     allow_headers=["*"],  # 모든 HTTP 헤더 허용
 )
 
-# ✅ 서버 시작 시 DB 및 Milvus 초기화
 @app.on_event("startup")
 def startup_event():
-    print("🚀 서버 시작 → DB 및 Milvus 초기화 시작")
-    mariadb_msg = create_mariadb_table(config)
-    print(mariadb_msg)
-    milvus_msg = create_milvus_collections(config)
-    print(milvus_msg)
-    print("✅ 초기화 완료")
-
-    #gradio_app.launch_in_thread()
-    #print("✅ Gradio 실행 완료")
+    logger.info(ServerMessages.INITIALIZE)
+    initialize_db.create_mariadb_table()
+    initialize_db.create_milvus_collections()
+    logger.info(ServerMessages.INITIALIZE_COMPLETE)
 
 @app.get("/info")
-def info():
-    return get_server_info(config)
+async def info():
+    return get_info.get_server_info()
 
 @app.post("/regist_data")
 async def upload_data(file: UploadFile = File(...)):
-    result = regist_data.upload_json(file)
+    result = regist_data.data_insert(file)
     return result
 
 @app.post("/search")
