@@ -2,14 +2,20 @@ class ServerMessages:
     INITIALIZE = "✅ DB 및 Milvus 초기화 시작"
     INITIALIZE_COMPLETE = "✅ DB 및 Milvus 초기화 완료"
 
+    DB_EXISTS = "⚠️ 이미 존재하는 MariaDB Database: {database}"
+    DB_CREATE = "✅ MariaDB 데이터베이스 '{database}' 생성"
+    DB_CREATE_ERROR = "❌ MariaDB 데이터베이스 '{database}' 생성 실패: "
     DB_CONNECT = "✅ MariaDB 연결"
     DB_CONNECT_ERROR = "❌ MariaDB 연결 실패: "
-    DB_EXISTS = "⚠️ 이미 존재하는 MariaDB 테이블: "
+    DB_TABLE_EXISTS = "⚠️ 이미 존재하는 MariaDB 테이블: "
     DB_COMPLETE = "✅ MariaDB 테이블 생성 완료: "
 
+    MILVUS_EXISTS = "⚠️ 이미 존재하는 Milvus Database: {database}"
+    MILVUS_CREATE = "✅ Milvus 데이터베이스 '{database}' 생성"
+    MILVUS_CREATE_ERROR = "❌ Milvus 데이터베이스 '{database}' 생성 실패: "
     MILVUS_CONNECT = "✅ Milvus 연결"
     MILVUS_ERROR = "❌ Milvus 연결 실패: "
-    MILVUS_COL_INFO = "⚠️ 이미 존재하는 Milvus 컬렉션: "
+    MILVUS_COL_EXISTS = "⚠️ 이미 존재하는 Milvus 컬렉션: "
     MILVUS_COMPLETE = "✅ Milvus 컬렉션 및 인덱스 생성 완료: "
 
     REGISTDATA_JSON_LOAD = "✅ Json 파일 로드"
@@ -20,6 +26,10 @@ class ServerMessages:
     REGISTDATA_INSERT_COMPLETE = "✅ 데이터 등록 완료"
     REGISTDATA_INSERT_ERROR = "❌ 데이터 등록 실패"
     REGISTDATA_INSERT_DATA_INFO = "✅ 총 데이터수: {len} 배치사이즈: {batch}"
+
+    REGISTDATA_DEV_EMBEDDING_LOAD_SUCCESS = "✅ MariaDB 데이터 로드"
+    REGISTDATA_DEV_EMBEDDING_INSERT_COMPLETE = "✅ Milvus 데이터 등록"
+    REGISTDATA_DEV_EMBEDDING_INSERT_ERROR = "❌ Milvus 데이터 등록 실패"
 
     EMBEDDING_ERROR = "❌ 데이터 임베딩 실패"
 

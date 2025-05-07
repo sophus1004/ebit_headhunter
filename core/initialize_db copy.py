@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import create_engine, text, Column, BigInteger, String, MetaData, Table, Text
+from sqlalchemy import create_engine, Column, BigInteger, String, MetaData, Table, Text
 from sqlalchemy.engine import reflection
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
@@ -19,25 +19,6 @@ class InitializeDB:
         self.engine = None
         self.mariadb_connection = None
         self.session = None
-
-        try:
-            tmp_engine = create_engine(
-                f"mysql+pymysql://{self.mariadb_config.user}:{self.mariadb_config.password}"
-                f"@{self.mariadb_config.host}:{self.mariadb_config.port}",
-                pool_pre_ping=True
-            )
-            with tmp_engine.connect() as conn:
-                result = conn.execute(
-                    text("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :db_name"),
-                    {"db_name": self.mariadb_config.database}
-                )
-                if result.fetchone():
-                    logger.warning(ServerMessages.DB_EXISTS.format(database=self.mariadb_config.database))
-                else:
-                    conn.execute(text(f"CREATE DATABASE {self.mariadb_config.database}"))
-                    logger.info(ServerMessages.DB_CREATE.format(database=self.mariadb_config.database))
-        except Exception as e:
-            logger.error(ServerMessages.DB_CREATE_ERROR.format(database=self.mariadb_config.database) + f"{e}")
 
         try:
             self.engine = create_engine(
@@ -62,20 +43,10 @@ class InitializeDB:
                 host=self.milvus_config.host,
                 port=int(self.milvus_config.port)
             )
-            if self.milvus_config.database not in db.list_database():
-                try:
-                    db.create_database(self.milvus_config.database)
-                    logger.info(ServerMessages.MILVUS_CREATE.format(database=self.milvus_config.database))
-                    db.using_database(self.milvus_config.database)
-                except Exception as e:
-                    logger.error(ServerMessages.MILVUS_CREATE_ERROR.format(database=self.milvus_config.database) + f"{e}")
-            else:
-                logger.warning(ServerMessages.MILVUS_EXISTS.format(database=self.milvus_config.database))
-                db.using_database(self.milvus_config.database)
+            db.using_database("base_model")
             logger.info(ServerMessages.MILVUS_CONNECT)
         except Exception as e:
             logger.error(ServerMessages.MILVUS_ERROR + f"{e}")
-
 
     def create_mariadb_table(self):
         metadata = MetaData()
@@ -107,13 +78,12 @@ class InitializeDB:
         metadata.create_all(self.engine)
         logger.info(ServerMessages.DB_COMPLETE + f"{self.mariadb_config.table}")
 
-
     def create_milvus_collections(self):
         results = []
 
         for collection_name in self.data_config.collection:
             if utility.has_collection(collection_name):
-                results.append(ServerMessages.MILVUS_COL_EXISTS + f"{collection_name}")
+                results.append(ServerMessages.MILVUS_COL_INFO + f"{collection_name}")
                 continue
 
             fields = [

@@ -54,6 +54,7 @@ class RegistData:
         df = self._convert_data(data)
         logger.info(ServerMessages.REGISTDATA_INSERT_DATA)
         logger.info(ServerMessages.REGISTDATA_INSERT_DATA_INFO.format(len=len(df), batch=self.embedding_config.batch_size))
+
         try:
             with self.initialize_db.engine.begin() as conn:
                 for start in trange(0, len(df), self.embedding_config.batch_size):
@@ -63,11 +64,42 @@ class RegistData:
 
                     for col in self.data_config.collection:
                         embedding_result = self.text_embedding.get_embeddings(batch[col].tolist())
+
                         collection = Collection(col)
                         collection.insert([batch['id'].tolist(), batch[col].tolist(), embedding_result])
                         collection.flush()
+
                 logger.info(ServerMessages.REGISTDATA_INSERT_COMPLETE)
                 return {"status": "success"}
+
         except Exception as e:
             logger.error(ServerMessages.REGISTDATA_INSERT_ERROR + f"{e}")
+            return {"status": "error", "detail": str(e)}
+
+
+    def dev_embedding_insert_only(self):
+        try:
+            with self.initialize_db.engine.begin() as conn:
+                df = pd.read_sql_table(self.mariadb_config.table, con=conn)
+
+            logger.info(ServerMessages.REGISTDATA_DEV_EMBEDDING_LOAD_SUCCESS)
+            logger.info(ServerMessages.REGISTDATA_INSERT_DATA_INFO.format(len=len(df), batch=self.embedding_config.batch_size))
+
+            for start in trange(0, len(df), self.embedding_config.batch_size):
+                end = start + self.embedding_config.batch_size
+                batch = df.iloc[start:end]
+
+                for col in self.data_config.collection:
+                    texts = batch[col].astype(str).tolist()
+                    embedding_result = self.text_embedding.get_embeddings(texts)
+
+                    collection = Collection(col)
+                    collection.insert([batch['id'].tolist(), texts, embedding_result])
+                    collection.flush()
+
+            logger.info(ServerMessages.REGISTDATA_DEV_EMBEDDING_INSERT_COMPLETE)
+            return {"status": "success"}
+
+        except Exception as e:
+            logger.error(ServerMessages.REGISTDATA_DEV_EMBEDDING_INSERT_ERROR + f"{e}")
             return {"status": "error", "detail": str(e)}
