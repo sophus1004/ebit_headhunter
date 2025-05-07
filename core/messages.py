@@ -22,3 +22,6 @@ class ServerMessages:
     REGISTDATA_INSERT_DATA_INFO = "✅ 총 데이터수: {len} 배치사이즈: {batch}"
 
     EMBEDDING_ERROR = "❌ 데이터 임베딩 실패"
+
+    MILVUS_SEARCH_ERROR = "❌ 밀버스 검색 실패: "
+    MARIA_SEARCH_ERROR = "❌ MariaDB 검색 실패: "

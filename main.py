@@ -45,10 +45,10 @@ async def upload_data(file: UploadFile = File(...)):
 @app.post("/search")
 async def search(
     query: str = Body(...),
-    collection_names: List[str] = Body(...),
+    collection_names: str = Body(...),
     top_k: int = Body(1)
 ):
-    return vector_search.search(
+    return vector_search.only_vector(
         collection_names=collection_names,
         query_text=query,
         top_k=top_k
