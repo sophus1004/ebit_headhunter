@@ -18,6 +18,7 @@ class MilvusConfig:
         self.host = "host.docker.internal"
         self.port = 19530
         self.api_port = 9091
+        self.database = "base_model"
 
 class EmbeddingConfig:
     def __init__(self):
