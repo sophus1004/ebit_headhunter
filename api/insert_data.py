@@ -11,7 +11,7 @@ from services.text_embedding import TextEmbeddings
 logger = logging.getLogger("uvicorn.error")
 
 
-class RegistData:
+class InsertData:
     """JSON 데이터를 받아 MariaDB 및 Milvus에 저장 및 임베딩하는 클래스입니다.
 
     Attributes:

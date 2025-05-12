@@ -6,7 +6,7 @@ from core.config import AppConfig
 from core.messages import ServerMessages
 from core.initialize_db import InitializeDB
 from api.get_info import GetInfo
-from api.regist_data import RegistData
+from api.insert_data import InsertData
 from api.vector_search import VectorSearch
 
 logger = logging.getLogger("uvicorn.error")
@@ -18,7 +18,7 @@ app = FastAPI()
 config = AppConfig()
 initialize_db = InitializeDB(config)
 get_info = GetInfo(config)
-regist_data = RegistData(config, initialize_db)
+insert_data = InsertData(config, initialize_db)
 vector_search = VectorSearch(config, initialize_db)
 
 # CORS 설정: 개발 편의를 위해 모든 origin 허용
@@ -41,7 +41,7 @@ def startup_event():
 
 
 @app.get("/info")
-async def info():
+async def api_info():
     """서버 설정 정보 및 상태를 반환합니다.
 
     Returns:
@@ -50,8 +50,8 @@ async def info():
     return get_info.get_server_info()
 
 
-@app.post("/regist_data")
-async def data_insert(file: UploadFile = File(...)):
+@app.post("/insert_data")
+async def api_insert_data(file: UploadFile = File(...)):
     """업로드된 JSONL 파일을 기반으로 DB 및 Milvus에 데이터를 삽입합니다.
 
     Args:
@@ -60,23 +60,23 @@ async def data_insert(file: UploadFile = File(...)):
     Returns:
         dict: 데이터 삽입 결과 정보.
     """
-    result = regist_data.data_insert(file)
+    result = insert_data.data_insert(file)
     return result
 
 
 @app.post("/dev_embedding_insert_only")
-async def dev_embedding_insert_only():
+async def api_dev_embedding_insert_only():
     """DB에 있는 데이터를 Milvus에 임베딩만 수행하는 개발용 엔드포인트입니다.
 
     Returns:
         dict: 임베딩 삽입 결과 정보.
     """
-    result = regist_data.dev_embedding_insert_only()
+    result = insert_data.dev_embedding_insert_only()
     return result
 
 
 @app.post("/search")
-async def search(
+async def api_search(
     query: str = Body(...),
     collection_names: str = Body(...),
     top_k: int = Body(1)
