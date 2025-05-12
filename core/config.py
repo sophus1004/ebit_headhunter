@@ -17,7 +17,7 @@ class MariaDBConfig:
     """
 
     def __init__(self):
-        self.host = "121.126.210.5"
+        self.host = "host.docker.internal"
         self.port = 3306
         self.user = "root"
         self.password = "testdb"
@@ -41,10 +41,10 @@ class MilvusConfig:
     """
 
     def __init__(self):
-        self.host = "121.126.210.5"
+        self.host = "host.docker.internal"
         self.port = 19530
         self.api_port = 9091
-        self.database = "step_1_e03"
+        self.database = "base_model"
 
 
 class EmbeddingConfig:
@@ -57,7 +57,7 @@ class EmbeddingConfig:
     """
 
     def __init__(self):
-        self.host = "121.126.210.5"
+        self.host = "host.docker.internal"
         self.port = 3201
         self.batch_size = 32
 
