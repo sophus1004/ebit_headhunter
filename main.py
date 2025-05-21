@@ -2,6 +2,7 @@ import logging
 from typing import List
 from fastapi import FastAPI, UploadFile, Body, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_mcp import FastApiMCP
 from core.config import AppConfig
 from core.messages import ServerMessages
 from core.initialize_db import InitializeDB
@@ -40,7 +41,7 @@ def startup_event():
     logger.info(ServerMessages.INIT_COMPLETE)
 
 
-@app.get("/info")
+@app.get("/info", operation_id="get info")
 async def api_info():
     """서버 설정 정보 및 상태를 반환합니다.
 
@@ -50,7 +51,7 @@ async def api_info():
     return get_info.get_server_info()
 
 
-@app.post("/insert_data")
+@app.post("/insert_data", operation_id="insert data")
 async def api_insert_data(file: UploadFile = File(...)):
     """업로드된 JSONL 파일을 기반으로 DB 및 Milvus에 데이터를 삽입합니다.
 
@@ -64,7 +65,7 @@ async def api_insert_data(file: UploadFile = File(...)):
     return result
 
 
-@app.post("/dev_embedding_insert_only")
+@app.post("/dev_embedding_insert_only", operation_id="dev embedding insert only")
 async def api_dev_embedding_insert_only():
     """DB에 있는 데이터를 Milvus에 임베딩만 수행하는 개발용 엔드포인트입니다.
 
@@ -75,7 +76,7 @@ async def api_dev_embedding_insert_only():
     return result
 
 
-@app.post("/search")
+@app.post("/search", operation_id="search")
 async def api_search(
     query: str = Body(...),
     collection_names: str = Body(...),
@@ -96,3 +97,6 @@ async def api_search(
         query_text=query,
         top_k=top_k
     )
+
+mcp = FastApiMCP(app)
+mcp.mount()
